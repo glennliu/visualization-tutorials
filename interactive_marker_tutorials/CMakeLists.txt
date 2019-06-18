@@ -1,7 +1,12 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(interactive_marker_tutorials)
 
-find_package(catkin REQUIRED COMPONENTS interactive_markers roscpp visualization_msgs tf)
+find_package(catkin REQUIRED COMPONENTS
+        interactive_markers roscpp
+        visualization_msgs tf
+        decomp_ros_msgs
+        rviz_visual_tools)
+
 
 ###################################
 ## catkin specific configuration ##
@@ -32,6 +37,11 @@ add_executable(basic_controls src/basic_controls.cpp)
 target_link_libraries(basic_controls
    ${catkin_LIBRARIES}
 )
+
+add_executable(airborne_control src/airborne.cpp)
+target_link_libraries(airborne_control
+        ${catkin_LIBRARIES}
+        )
 
 add_executable(selection src/selection.cpp)
 target_link_libraries(selection
