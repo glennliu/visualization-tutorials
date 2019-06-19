@@ -500,7 +500,6 @@ void marker_handle_cb2(const visualization_msgs::InteractiveMarkerInit::ConstPtr
             drone_target_pose_msg.pose.position.z = virfence_max(2);
         }
     }
-
 }
 
 // %Tag(main)%
