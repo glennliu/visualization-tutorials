@@ -40,6 +40,7 @@
 #include <visualization_msgs/InteractiveMarkerUpdate.h>
 #include <visualization_msgs/InteractiveMarkerInit.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/Polygon.h>
 
 #include <tf/transform_broadcaster.h>
 #include <tf/tf.h>
@@ -47,12 +48,14 @@
 #include <math.h>
 #include <string.h>
 #include <sstream>
-
+#include <vector>
+#include <Eigen/Eigen>
 #include <decomp_ros_msgs/cmd.h>
 #include <rviz_visual_tools/mav_cmd_enum.h>
 
 using namespace visualization_msgs;
-
+using namespace Eigen;
+using namespace std;
 
 // %Tag(vars)%
 boost::shared_ptr<interactive_markers::InteractiveMarkerServer> server;
@@ -64,10 +67,13 @@ static std::string mesh_resource;
 
 ros::Publisher drone_target_point, markerPub;
 ros::Subscriber markerHandle1,markerHandle2;
+ros::Time t;
 geometry_msgs::PoseStamped drone_target_pose_msg;
+Vector3d virfence_min, virfence_max;
+
 bool marker_flag;
 int marker_type,seq;
-ros::Time t;
+
 
 // %EndTag(vars)%
 
@@ -473,11 +479,29 @@ void marker_handle_cb2(const visualization_msgs::InteractiveMarkerInit::ConstPtr
         markerPub.publish(marker);
 
 //        ROS_INFO("haha");
+
+        // geofence
+        if (drone_target_pose_msg.pose.position.x<virfence_min(0)){
+            drone_target_pose_msg.pose.position.x = virfence_min(0);
+        }
+        else if (drone_target_pose_msg.pose.position.x > virfence_max(0)){
+            drone_target_pose_msg.pose.position.x = virfence_max(0);
+        }
+        if (drone_target_pose_msg.pose.position.y < virfence_min(1)){
+            drone_target_pose_msg.pose.position.y = virfence_min(1);
+        }
+        else if (drone_target_pose_msg.pose.position.y > virfence_max(1)){
+            drone_target_pose_msg.pose.position.y = virfence_max(1);
+        }
+        if (drone_target_pose_msg.pose.position.z < virfence_min(2)){
+            drone_target_pose_msg.pose.position.z = virfence_min(2);
+        }
+        else if (drone_target_pose_msg.pose.position.z > virfence_max(2)){
+            drone_target_pose_msg.pose.position.z = virfence_max(2);
+        }
     }
 
-
 }
-
 
 // %Tag(main)%
 int main(int argc, char** argv)
@@ -485,12 +509,22 @@ int main(int argc, char** argv)
     ros::init(argc, argv, "airborne_control");
     ros::NodeHandle n;
 
+    n.getParam("airborne_control/x_range_min",virfence_min(0));
+    n.getParam("airborne_control/y_range_min",virfence_min(1));
+    n.getParam("airborne_control/z_range_min",virfence_min(2));
+    n.getParam("airborne_control/x_range_max",virfence_max(0));
+    n.getParam("airborne_control/y_range_max",virfence_max(1));
+    n.getParam("airborne_control/z_range_max",virfence_max(2));
+
+//    ROS_INFO("x range: %f \n",virfence_min(0));
+
     n.param("mesh_resource", mesh_resource, std::string("package://odom_visualization/meshes/hummingbird.mesh"));
     ros::ServiceServer airborn_cmd_server = n.advertiseService("airborne_cmd",airborne_cmd_callback);
     markerHandle1 = n.subscribe("/airborne_control/update",1,marker_handle_cb1);
     markerHandle2 = n.subscribe("/airborne_control/update_full", 1, marker_handle_cb2);
     drone_target_point = n.advertise<geometry_msgs::PoseStamped>("/target_pose",1);
     markerPub = n.advertise<visualization_msgs::Marker>("TEXT_VIEW_FACING", 10);
+
 
     // create a timer to update the published transforms
     ros::Timer frame_timer = n.createTimer(ros::Duration(0.01), frameCallback);
