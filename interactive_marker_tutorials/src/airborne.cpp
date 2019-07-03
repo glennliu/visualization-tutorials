@@ -68,17 +68,17 @@ static std::string mesh_resource;
 //double start_x,start_y,start_z;
 
 ros::Publisher drone_target_point, markerPub;
-ros::Subscriber markerHandle1,markerHandle2, joyCtrl_sub, gui_state_sub;
-ros::Time t;
+ros::Subscriber markerHandle1,markerHandle2, odometry_sub, gui_state_sub;
+ros::Timer marker_cb;
+ros::Time t_marker;
 geometry_msgs::PoseStamped drone_target_pose_msg;
 Vector3d virfence_min, virfence_max;
 std_msgs::String gui_state;
 
-bool marker_flag, joyContrlFlag;
+bool marker_flag, joyContrlFlag, marker_holding_flag;
 int marker_type,seq;
 double start_x, start_y, start_z;
 double transit_x, transit_y, transit_z;
-
 
 // %EndTag(vars)%
 
@@ -144,6 +144,7 @@ void frameCallback(const ros::TimerEvent&)
     tf::Transform t;
 
     ros::Time time = ros::Time::now();
+    ros::Duration delta_t = time-t_marker;
 
     t.setOrigin(tf::Vector3(0.0, 0.0, sin(float(counter)/140.0) * 2.0));
     t.setRotation(tf::Quaternion(0.0, 0.0, 0.0, 1.0));
@@ -154,6 +155,13 @@ void frameCallback(const ros::TimerEvent&)
     br.sendTransform(tf::StampedTransform(t, time, "world", "rotating_frame"));
 
     counter++;
+
+    if(delta_t > ros::Duration(0.09) && delta_t < ros::Duration(0.1)
+            && marker_holding_flag){
+        drone_target_point.publish(drone_target_pose_msg);
+        ROS_INFO("pub target pose");
+    }
+
 }
 // %EndTag(frameCallback)%
 
@@ -454,18 +462,18 @@ void geofence()
     }
 }
 
-void joyControlcb(const nav_msgs::Odometry::ConstPtr& msg)
+void odometry_callback(const nav_msgs::Odometry::ConstPtr &msg)
 {
-    if(gui_state.data == "AIRBORNE_JOY"){
+//    if(gui_state.data == "AIRBORNE_JOY"){
         transit_x = msg->pose.pose.position.x;
         transit_y = msg->pose.pose.position.y;
         transit_z = msg->pose.pose.position.z;
-        drone_target_pose_msg.pose.position = msg->pose.pose.position;
-        drone_target_pose_msg.pose.orientation = msg->pose.pose.orientation;
-        display_text();
-        geofence();
-        drone_target_point.publish(drone_target_pose_msg);
-    }
+//        drone_target_pose_msg.pose.position = msg->pose.pose.position;
+//        drone_target_pose_msg.pose.orientation = msg->pose.pose.orientation;
+//        display_text();
+//        geofence();
+//        drone_target_point.publish(drone_target_pose_msg);
+//    }
 }
 
 void gui_state_cb(const std_msgs::String::ConstPtr& msg)
@@ -483,17 +491,24 @@ bool airborne_cmd_callback(decomp_ros_msgs::cmd::Request &req,decomp_ros_msgs::c
             tf::Vector3 position;
 //            position = tf::Vector3( start_x,start_y,start_z);
             position = tf::Vector3(transit_x, transit_y, transit_z);
-
             makeQuadrotorMarker(position);
             marker_flag = true;
             res.success = true;
             res.message = "initiated";
             break;
         }
-        case MAV_CMD_PAUSE:
+        case MAV_CMD_PAUSE: {
+            InteractiveMarker tmp_marker;
+            tmp_marker.name = "virDrone";
+            server->erase(tmp_marker.name);
+
+            marker_flag = false;
+            res.success = true;
+            res.message = "paused";
 
 
             break;
+        }
         case MAV_CMD_FINISH: {
             InteractiveMarker tmp_marker;
             tmp_marker.name = "virDrone";
@@ -528,13 +543,13 @@ void marker_handle_cb1(const visualization_msgs::InteractiveMarkerUpdate::ConstP
 {
 //    marker_type = msg->type;
     ros::Time t_now = ros::Time::now();
-    if(marker_type ==1 && msg->type == 0 && t_now-t >ros::Duration(0.05)){
+    if(marker_type ==1 && msg->type == 0 && t_now-t_marker >ros::Duration(0.05)){
         drone_target_point.publish(drone_target_pose_msg);
 //        ROS_INFO("previous:%d,current:%d \n",marker_type,msg->type);
         ROS_INFO("previous:%d,current:%d \n",seq,msg->seq_num);
     }
 
-    t = ros::Time::now();
+    t_marker = ros::Time::now();
     marker_type = msg->type;
     seq = msg->seq_num;
 
@@ -543,14 +558,16 @@ void marker_handle_cb1(const visualization_msgs::InteractiveMarkerUpdate::ConstP
 
 void marker_handle_cb2(const visualization_msgs::InteractiveMarkerInit::ConstPtr &msg)
 {
+    marker_holding_flag = true;
     if(marker_flag){
         drone_target_pose_msg.header.stamp = ros::Time::now();
         drone_target_pose_msg.header.frame_id = msg->markers[0].header.frame_id;
         drone_target_pose_msg.pose.position = msg->markers[0].pose.position;
         drone_target_pose_msg.pose.orientation = msg->markers[0].pose.orientation;
 
+        t_marker = ros::Time::now();
+        seq = msg->seq_num;
         display_text();
-
 //        ROS_INFO("haha");
         geofence();
 
@@ -576,14 +593,15 @@ int main(int argc, char** argv)
     transit_x = start_x;
     transit_y = start_y;
     transit_z = start_z;
+    marker_holding_flag = false;
 
 //    ROS_INFO("x range: %f \n",virfence_min(0));
 
     n.param("mesh_resource", mesh_resource, std::string("package://odom_visualization/meshes/hummingbird.mesh"));
     ros::ServiceServer airborn_cmd_server = n.advertiseService("airborne_cmd",airborne_cmd_callback);
-    markerHandle1 = n.subscribe("/airborne_control/update",1,marker_handle_cb1);
+//    markerHandle1 = n.subscribe("/airborne_control/update",1,marker_handle_cb1);
     markerHandle2 = n.subscribe("/airborne_control/update_full", 1, marker_handle_cb2);
-    joyCtrl_sub = n.subscribe("/uav_odom_sim",1,joyControlcb);
+    odometry_sub = n.subscribe("/vins_estimator/odometry", 1, odometry_callback);
     gui_state_sub = n.subscribe("/gui_state",1,gui_state_cb);
 
     drone_target_point = n.advertise<geometry_msgs::PoseStamped>("/target_pose",1);
