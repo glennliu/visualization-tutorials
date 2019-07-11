@@ -198,13 +198,13 @@ void frameCallback(const ros::TimerEvent&)
 
     counter++;
 
-    if(delta_t > ros::Duration(0.09) && delta_t < ros::Duration(0.1)
-            && marker_holding_flag){
-        geofence();
-//        display_text();
-        drone_target_point.publish(drone_target_pose_msg);
-        ROS_INFO("pub target pose");
-    }
+//    if(delta_t > ros::Duration(0.09) && delta_t < ros::Duration(0.1)
+//            && marker_holding_flag){
+//        geofence();
+////        display_text();
+//        drone_target_point.publish(drone_target_pose_msg);
+//        ROS_INFO("pub target pose");
+//    }
 
 }
 // %EndTag(frameCallback)%
@@ -607,9 +607,9 @@ int main(int argc, char** argv)
     n.param("mesh_resource", mesh_resource, std::string("package://odom_visualization/meshes/hummingbird.mesh"));
     ros::ServiceServer airborn_cmd_server = n.advertiseService("airborne_cmd",airborne_cmd_callback);
 //    markerHandle1 = n.subscribe("/airborne_control/update",1,marker_handle_cb1);
-    markerHandle2 = n.subscribe("/airborne_control/update_full", 1, marker_handle_cb2);
-    odometry_sub = n.subscribe("/vins_estimator/odometry", 1, odometry_callback);
-    gui_state_sub = n.subscribe("/gui_state",1,gui_state_cb);
+//    markerHandle2 = n.subscribe("/airborne_control/update_full", 1, marker_handle_cb2);
+//    odometry_sub = n.subscribe("/vins_estimator/odometry", 1, odometry_callback);
+//    gui_state_sub = n.subscribe("/gui_state",1,gui_state_cb);
 
     drone_target_point = n.advertise<geometry_msgs::PoseStamped>("/target_pose",1);
     markerPub = n.advertise<visualization_msgs::Marker>("TEXT_VIEW_FACING", 10);
