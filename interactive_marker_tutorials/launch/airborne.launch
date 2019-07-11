@@ -26,6 +26,7 @@
         <param name="x_range_max" value="20"/>
         <param name="y_range_max" value="20"/>
         <param name="z_range_max" value="3"/>
+        <param name="mesh_marker_flag" type="bool" value="false"/>
     </node>
 
     <!--<node pkg="interactive_marker_tutorials" type="basic_controls" name="basic_controls" output="screen"/>-->
