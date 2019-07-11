@@ -28,5 +28,7 @@
         <param name="z_range_max" value="3"/>
     </node>
 
+    <!--<node pkg="interactive_marker_tutorials" type="basic_controls" name="basic_controls" output="screen"/>-->
+
 
 </launch>
