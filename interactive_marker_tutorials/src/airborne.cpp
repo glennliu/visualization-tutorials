@@ -80,6 +80,10 @@ int marker_type,seq;
 double start_x, start_y, start_z;
 double transit_x, transit_y, transit_z;
 
+// vis text
+Marker text_marker;
+
+
 // %EndTag(vars)%
 
 // %Tag(Box)%
@@ -134,6 +138,44 @@ InteractiveMarkerControl& makeBoxControl( InteractiveMarker &msg )
 }
 // %EndTag(Box)%
 
+
+void display_text()
+{
+    std::ostringstream text_str;
+
+    text_str<< std::fixed;
+    text_str<< std::setprecision(2);
+    text_str<<drone_target_pose_msg.pose.position.x<<","
+       <<drone_target_pose_msg.pose.position.y<<","<<drone_target_pose_msg.pose.position.z;
+    text_marker.text = text_str.str();
+    text_marker.pose.position.x = drone_target_pose_msg.pose.position.x;
+    text_marker.pose.position.y = drone_target_pose_msg.pose.position.y;
+    text_marker.pose.position.z = drone_target_pose_msg.pose.position.z + 2;
+    markerPub.publish(text_marker);
+}
+
+void geofence()
+{
+    if (drone_target_pose_msg.pose.position.x<virfence_min(0)){
+        drone_target_pose_msg.pose.position.x = virfence_min(0);
+    }
+    else if (drone_target_pose_msg.pose.position.x > virfence_max(0)){
+        drone_target_pose_msg.pose.position.x = virfence_max(0);
+    }
+    if (drone_target_pose_msg.pose.position.y < virfence_min(1)){
+        drone_target_pose_msg.pose.position.y = virfence_min(1);
+    }
+    else if (drone_target_pose_msg.pose.position.y > virfence_max(1)){
+        drone_target_pose_msg.pose.position.y = virfence_max(1);
+    }
+    if (drone_target_pose_msg.pose.position.z < virfence_min(2)){
+        drone_target_pose_msg.pose.position.z = virfence_min(2);
+    }
+    else if (drone_target_pose_msg.pose.position.z > virfence_max(2)){
+        drone_target_pose_msg.pose.position.z = virfence_max(2);
+    }
+}
+
 // %Tag(frameCallback)%
 void frameCallback(const ros::TimerEvent&)
 {
@@ -158,6 +200,8 @@ void frameCallback(const ros::TimerEvent&)
 
     if(delta_t > ros::Duration(0.09) && delta_t < ros::Duration(0.1)
             && marker_holding_flag){
+        geofence();
+//        display_text();
         drone_target_point.publish(drone_target_pose_msg);
         ROS_INFO("pub target pose");
     }
@@ -409,58 +453,6 @@ void makeMovingMarker( const tf::Vector3& position )
 // %EndTag(Moving)%
 
 
-void display_text()
-{
-    // vis text
-    std::ostringstream str;
-    Marker marker;
-
-    marker.header.frame_id="world";
-    marker.header.stamp = ros::Time::now();
-    marker.ns = "basic_shapes";
-    marker.action = visualization_msgs::Marker::ADD;
-    marker.pose.orientation.w = 1.0;
-    marker.id =0;
-    marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
-
-    marker.scale.z = 0.2;
-    marker.color.b = 0;
-    marker.color.g = 0;
-    marker.color.r = 255;
-    marker.color.a = 1;
-
-    str<< std::fixed;
-    str<< std::setprecision(2);
-    str<<drone_target_pose_msg.pose.position.x<<","
-       <<drone_target_pose_msg.pose.position.y<<","<<drone_target_pose_msg.pose.position.z;
-    marker.text = str.str();
-    marker.pose.position.x = drone_target_pose_msg.pose.position.x;
-    marker.pose.position.y = drone_target_pose_msg.pose.position.y;
-    marker.pose.position.z = drone_target_pose_msg.pose.position.z + 2;
-    markerPub.publish(marker);
-}
-
-void geofence()
-{
-    if (drone_target_pose_msg.pose.position.x<virfence_min(0)){
-        drone_target_pose_msg.pose.position.x = virfence_min(0);
-    }
-    else if (drone_target_pose_msg.pose.position.x > virfence_max(0)){
-        drone_target_pose_msg.pose.position.x = virfence_max(0);
-    }
-    if (drone_target_pose_msg.pose.position.y < virfence_min(1)){
-        drone_target_pose_msg.pose.position.y = virfence_min(1);
-    }
-    else if (drone_target_pose_msg.pose.position.y > virfence_max(1)){
-        drone_target_pose_msg.pose.position.y = virfence_max(1);
-    }
-    if (drone_target_pose_msg.pose.position.z < virfence_min(2)){
-        drone_target_pose_msg.pose.position.z = virfence_min(2);
-    }
-    else if (drone_target_pose_msg.pose.position.z > virfence_max(2)){
-        drone_target_pose_msg.pose.position.z = virfence_max(2);
-    }
-}
 
 void odometry_callback(const nav_msgs::Odometry::ConstPtr &msg)
 {
@@ -567,9 +559,9 @@ void marker_handle_cb2(const visualization_msgs::InteractiveMarkerInit::ConstPtr
 
         t_marker = ros::Time::now();
         seq = msg->seq_num;
-        display_text();
+//        display_text();
 //        ROS_INFO("haha");
-        geofence();
+//        geofence();
 
     }
 }
@@ -594,6 +586,21 @@ int main(int argc, char** argv)
     transit_y = start_y;
     transit_z = start_z;
     marker_holding_flag = false;
+
+    //vis text
+    text_marker.header.frame_id="world";
+    text_marker.header.stamp = ros::Time::now();
+    text_marker.ns = "basic_shapes";
+    text_marker.action = visualization_msgs::Marker::ADD;
+    text_marker.pose.orientation.w = 1.0;
+    text_marker.id =0;
+    text_marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+
+    text_marker.scale.z = 0.2;
+    text_marker.color.b = 0;
+    text_marker.color.g = 0;
+    text_marker.color.r = 255;
+    text_marker.color.a = 1;
 
 //    ROS_INFO("x range: %f \n",virfence_min(0));
 
