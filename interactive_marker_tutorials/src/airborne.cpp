@@ -179,7 +179,7 @@ void geofence()
 
 void markerpubCallback(const ros::TimerEvent&)
 {
-    ROS_INFO("pub cb 1111111111111111111");
+//    ROS_INFO("pub cb 1111111111111111111");
     ros::Time time = ros::Time::now();
     ros::Duration delta_t = time-t_marker;
 
@@ -191,7 +191,7 @@ void markerpubCallback(const ros::TimerEvent&)
         ROS_INFO("pub target pose");
     }
 
-    ROS_INFO("pub cb 222222222222222222222");
+//    ROS_INFO("pub cb 222222222222222222222");
 }
 
 // %Tag(frameCallback)%
@@ -225,6 +225,7 @@ void frameCallback(const ros::TimerEvent&)
 // %Tag(processFeedback)%
 void processFeedback( const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback )
 {
+    /*
     std::ostringstream s;
     s << "Feedback from marker '" << feedback->marker_name << "' "
       << " / control '" << feedback->control_name << "'";
@@ -237,7 +238,7 @@ void processFeedback( const visualization_msgs::InteractiveMarkerFeedbackConstPt
                        << ", " << feedback->mouse_point.z
                        << " in frame " << feedback->header.frame_id;
     }
-/*
+
 //    switch ( feedback->event_type )
 //    {
 //        case visualization_msgs::InteractiveMarkerFeedback::BUTTON_CLICK:
@@ -470,7 +471,7 @@ void makeMovingMarker( const tf::Vector3& position )
 void odometry_callback(const nav_msgs::Odometry::ConstPtr &msg)
 {
 //    if(gui_state.data == "AIRBORNE_JOY"){
-        ROS_INFO("3333333");
+//        ROS_INFO("3333333");
         transit_x = msg->pose.pose.position.x;
         transit_y = msg->pose.pose.position.y;
         transit_z = msg->pose.pose.position.z;
@@ -574,9 +575,8 @@ void marker_handle_cb1(const visualization_msgs::InteractiveMarkerUpdate::ConstP
 
 void marker_handle_cb2(const visualization_msgs::InteractiveMarkerInit::ConstPtr &msg)
 {
-    ROS_INFO("11111111");
     if(marker_flag){
-        ROS_INFO("222222222");
+        ROS_INFO("mkcb111");
         drone_target_pose_msg.header.stamp = ros::Time::now();
         drone_target_pose_msg.header.frame_id = msg->markers[0].header.frame_id;
         drone_target_pose_msg.pose.position = msg->markers[0].pose.position;
@@ -585,6 +585,9 @@ void marker_handle_cb2(const visualization_msgs::InteractiveMarkerInit::ConstPtr
         t_marker = ros::Time::now();
         seq = msg->seq_num;
         display_text();
+
+        ROS_INFO("mkcb222");
+
 //        ROS_INFO("haha");
 //        geofence();
 
@@ -645,7 +648,7 @@ int main(int argc, char** argv)
         markerPub = n.advertise<visualization_msgs::Marker>("TEXT_VIEW_FACING", 10);
     }
     // create a timer to update the published transforms
-    ros::Timer frame_timer = n.createTimer(ros::Duration(0.01), frameCallback);
+    ros::Timer frame_timer = n.createTimer(ros::Duration(0.04), frameCallback);
     marker_pub_timer = n.createTimer(ros::Duration(0.1),markerpubCallback);
 
     server.reset( new interactive_markers::InteractiveMarkerServer("airborne_control","",false) );
@@ -654,10 +657,10 @@ int main(int argc, char** argv)
     ros::Duration(0.1).sleep();
 
     menu_handler.insert( "First Entry", &processFeedback );
-    menu_handler.insert( "Second Entry", &processFeedback );
+//    menu_handler.insert( "Second Entry", &processFeedback );
     interactive_markers::MenuHandler::EntryHandle sub_menu_handle = menu_handler.insert( "Submenu" );
     menu_handler.insert( sub_menu_handle, "First Entry", &processFeedback );
-    menu_handler.insert( sub_menu_handle, "Second Entry", &processFeedback );
+//    menu_handler.insert( sub_menu_handle, "Second Entry", &processFeedback );
 /*
 //    tf::Vector3 position;
 //    position = tf::Vector3(-3, 3, 0);
