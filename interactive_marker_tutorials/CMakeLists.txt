@@ -5,6 +5,7 @@ find_package(catkin REQUIRED COMPONENTS
         interactive_markers roscpp
         visualization_msgs tf
         decomp_ros_msgs
+        ground_station_msgs
         rviz_visual_tools)
 
 

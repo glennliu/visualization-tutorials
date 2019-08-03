@@ -12,6 +12,10 @@
 
     <param name="/odom_visualization/pub_path_flag"  type="bool"  value="false"/>
 
+  <!--node name="$(anon rviz)" pkg="rviz" type="rviz" respawn="false"
+        args="-d $(find rviz_visual_tools)/launch/map.rviz">
+  </node-->
+
     <node name="$(anon rviz)" pkg="rviz" type="rviz" respawn="false"
           args="-d $(find interactive_marker_tutorials)/launch/rviz_config/light.rviz" output="screen">
     </node>
@@ -26,12 +30,13 @@
         <param name="x_range_max" value="20"/>
         <param name="y_range_max" value="20"/>
         <param name="z_range_max" value="3"/>
-        <param name="mesh_marker_flag" type="bool" value="false"/>
+        <param name="mesh_marker_flag" type="bool" value="true"/>
         <param name="remap_flag" type="bool" value="true"/>
 
     </node>
 
     <!--<node pkg="interactive_marker_tutorials" type="basic_controls" name="basic_controls" output="screen"/>-->
 
+<include file="$(find surfel_fusion)/launch/pj.launch"/>
 
 </launch>

@@ -26,7 +26,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: PointCloud2
   - Class: rviz/Displays
     Help Height: 78
     Name: Displays
@@ -159,7 +159,7 @@ Visualization Manager:
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
         Max Value: 1.45000005
-        Min Value: -1.04999995
+        Min Value: -1.35000002
         Value: true
       Axis: Z
       Channel Name: intensity
@@ -167,7 +167,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: AxisColor
       Decay Time: 0
-      Enabled: true
+      Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 4096
@@ -184,7 +184,7 @@ Visualization Manager:
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
+      Value: false
     - Class: rviz/MarkerArray
       Enabled: true
       Marker Topic: /vins_estimator/camera_pose_visual
@@ -205,6 +205,36 @@ Visualization Manager:
       Transport Hint: raw
       Unreliable: false
       Value: false
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: Intensity
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: -999999
+      Min Color: 0; 0; 0
+      Min Intensity: 999999
+      Name: PointCloud2
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.0500000007
+      Style: Squares
+      Topic: /surfel_fusion/pointcloud
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 255; 255; 255
@@ -223,25 +253,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/ThirdPersonFollower
-      Distance: 7.37661982
+      Distance: 11.3783007
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.959414601
-        Y: 1.20464325
-        Z: -1.00000358
+        X: 2.31837893
+        Y: -1.04001021
+        Z: -1.00000262
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.994796336
+      Pitch: 0.284797192
       Target Frame: drone
       Value: ThirdPersonFollower (rviz)
-      Yaw: 1.84743619
+      Yaw: 3.17743373
     Saved:
       - Class: rviz/ThirdPersonFollower
         Distance: 4.04827738
@@ -445,5 +475,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1535
-  X: 111
-  Y: 24
+  X: 93
+  Y: 78

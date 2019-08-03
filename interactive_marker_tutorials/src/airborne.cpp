@@ -53,6 +53,7 @@
 #include <vector>
 #include <Eigen/Eigen>
 #include <decomp_ros_msgs/cmd.h>
+#include <ground_station_msgs/Cmd.h>
 #include <rviz_visual_tools/mav_cmd_enum.h>
 
 using namespace visualization_msgs;
@@ -491,7 +492,7 @@ void gui_state_cb(const std_msgs::String::ConstPtr& msg)
 //    }
 }
 
-bool airborne_cmd_callback(decomp_ros_msgs::cmd::Request &req,decomp_ros_msgs::cmd::Response &res)
+bool airborne_cmd_callback(ground_station_msgs::Cmd::Request &req,ground_station_msgs::Cmd::Response &res)
 {
     switch (req.cmd_code) {
         case MAV_CMD_INIT: {
@@ -661,37 +662,7 @@ int main(int argc, char** argv)
     interactive_markers::MenuHandler::EntryHandle sub_menu_handle = menu_handler.insert( "Submenu" );
     menu_handler.insert( sub_menu_handle, "First Entry", &processFeedback );
 //    menu_handler.insert( sub_menu_handle, "Second Entry", &processFeedback );
-/*
-//    tf::Vector3 position;
-//    position = tf::Vector3(-3, 3, 0);
-//    make6DofMarker( false, visualization_msgs::InteractiveMarkerControl::NONE, position, true );
-//    position = tf::Vector3( 0, 3, 0);
-//    make6DofMarker( true, visualization_msgs::InteractiveMarkerControl::NONE, position, true );
-//    position = tf::Vector3( 3, 3, 0);
-//    makeRandomDofMarker( position );
-//    position = tf::Vector3(-3, 0, 0);
-//    make6DofMarker( false, visualization_msgs::InteractiveMarkerControl::ROTATE_3D, position, false );
-//    position = tf::Vector3( 0, 0, 0);
-//    make6DofMarker( false, visualization_msgs::InteractiveMarkerControl::MOVE_ROTATE_3D, position, true );
-//    position = tf::Vector3( 3, 0, 0);
-//    make6DofMarker( false, visualization_msgs::InteractiveMarkerControl::MOVE_3D, position, false );
-//    position = tf::Vector3(-3,-3, 0);
-//    makeViewFacingMarker( position );
-//    position = tf::Vector3( 0,-3, 0);
-//    makeQuadrocopterMarker( position );
-//    position = tf::Vector3( 3,-3, 0);
-//    makeChessPieceMarker( position );
-//    position = tf::Vector3(-3,-6, 0);
-//    makePanTiltMarker( position );
-//    position = tf::Vector3( 0,-6, 0);
-//    makeMovingMarker( position );
-//    position = tf::Vector3( 3,-6, 0);
-//    makeMenuMarker( position );
-//    position = tf::Vector3( 0,-9, 0);
-//    makeButtonMarker( position );
 
-//    server->applyChanges();
-    */
 
     ros::spin();
 
