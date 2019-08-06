@@ -186,7 +186,7 @@ void markerpubCallback(const ros::TimerEvent&)
     ros::Time time = ros::Time::now();
     ros::Duration delta_t = time-t_marker;
 
-    if(delta_t > ros::Duration(0.1) && delta_t < ros::Duration(0.2 &&!marker_trigger_state)
+    if(delta_t > ros::Duration(0.1) && delta_t < ros::Duration(0.2)
         &&remap_flag){
         geofence();
 //        display_text();
@@ -495,11 +495,8 @@ void gui_state_cb(const std_msgs::String::ConstPtr& msg)
 
 void marker_pub_trigger_callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
 {
-    if(marker_trigger_state){
-        geofence();
-        drone_target_point.publish(drone_target_pose_msg);
-    }
-
+    geofence();
+    drone_target_point.publish(drone_target_pose_msg);
 }
 
 bool airborne_cmd_callback(ground_station_msgs::Cmd::Request &req,ground_station_msgs::Cmd::Response &res)
@@ -622,6 +619,7 @@ int main(int argc, char** argv)
     n.getParam("airborne_control/z_range_max",virfence_max(2));
     n.getParam("airborne_control/mesh_marker_flag",mesh_marker_flag);
     n.getParam("airborne_control/remap_flag",remap_flag);
+    n.getParam("airborne_control/marker_trigger_init",marker_trigger_state);
 
     transit_x = start_x;
     transit_y = start_y;
@@ -643,7 +641,7 @@ int main(int argc, char** argv)
     text_marker.color.r = 255;
     text_marker.color.a = 1;
 
-    marker_trigger_state = true;
+//    marker_trigger_state = true;
 
 //    ROS_INFO("x range: %f \n",virfence_min(0));
 
@@ -655,14 +653,17 @@ int main(int argc, char** argv)
     if(remap_flag) {
         markerHandle2 = n.subscribe("/airborne_control/update_full", 1, marker_handle_cb2);
         odometry_sub = n.subscribe("/vins_estimator/odometry", 1, odometry_callback);
-        marker_pub_trigger = n.subscribe("/goal",1,marker_pub_trigger_callback);
 
         drone_target_point = n.advertise<geometry_msgs::PoseStamped>("/target_pose", 1);
         markerPub = n.advertise<visualization_msgs::Marker>("TEXT_VIEW_FACING", 10);
     }
     // create a timer to update the published transforms
-    ros::Timer frame_timer = n.createTimer(ros::Duration(0.04), frameCallback);
+    ros::Timer frame_timer = n.createTimer(ros::Duration(0.08), frameCallback);
     marker_pub_timer = n.createTimer(ros::Duration(0.1),markerpubCallback);
+    if (marker_trigger_state){
+        marker_pub_timer.stop();
+        marker_pub_trigger = n.subscribe("/goal",1,marker_pub_trigger_callback);
+    }
 
     server.reset( new interactive_markers::InteractiveMarkerServer("airborne_control","",false) );
     marker_flag = false;
