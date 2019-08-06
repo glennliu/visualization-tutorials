@@ -70,6 +70,7 @@ static std::string mesh_resource;
 
 ros::Publisher drone_target_point, markerPub;
 ros::Subscriber markerHandle1,markerHandle2, odometry_sub, gui_state_sub;
+ros::Subscriber marker_pub_trigger;
 ros::Timer marker_pub_timer;
 ros::Time t_marker;
 geometry_msgs::PoseStamped drone_target_pose_msg;
@@ -78,6 +79,7 @@ std_msgs::String gui_state;
 
 bool marker_flag, joyContrlFlag, marker_holding_flag;
 bool mesh_marker_flag, remap_flag;
+bool marker_trigger_state;
 int marker_type,seq;
 double start_x, start_y, start_z;
 double transit_x, transit_y, transit_z;
@@ -184,7 +186,7 @@ void markerpubCallback(const ros::TimerEvent&)
     ros::Time time = ros::Time::now();
     ros::Duration delta_t = time-t_marker;
 
-    if(delta_t > ros::Duration(0.1) && delta_t < ros::Duration(0.2)
+    if(delta_t > ros::Duration(0.1) && delta_t < ros::Duration(0.2 &&!marker_trigger_state)
         &&remap_flag){
         geofence();
 //        display_text();
@@ -192,7 +194,6 @@ void markerpubCallback(const ros::TimerEvent&)
         ROS_INFO("pub target pose");
     }
 
-//    ROS_INFO("pub cb 222222222222222222222");
 }
 
 // %Tag(frameCallback)%
@@ -492,6 +493,15 @@ void gui_state_cb(const std_msgs::String::ConstPtr& msg)
 //    }
 }
 
+void marker_pub_trigger_callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
+{
+    if(marker_trigger_state){
+        geofence();
+        drone_target_point.publish(drone_target_pose_msg);
+    }
+
+}
+
 bool airborne_cmd_callback(ground_station_msgs::Cmd::Request &req,ground_station_msgs::Cmd::Response &res)
 {
     switch (req.cmd_code) {
@@ -613,7 +623,6 @@ int main(int argc, char** argv)
     n.getParam("airborne_control/mesh_marker_flag",mesh_marker_flag);
     n.getParam("airborne_control/remap_flag",remap_flag);
 
-
     transit_x = start_x;
     transit_y = start_y;
     transit_z = start_z;
@@ -634,6 +643,8 @@ int main(int argc, char** argv)
     text_marker.color.r = 255;
     text_marker.color.a = 1;
 
+    marker_trigger_state = true;
+
 //    ROS_INFO("x range: %f \n",virfence_min(0));
 
     n.param("mesh_resource", mesh_resource, std::string("package://odom_visualization/meshes/hummingbird.mesh"));
@@ -644,6 +655,7 @@ int main(int argc, char** argv)
     if(remap_flag) {
         markerHandle2 = n.subscribe("/airborne_control/update_full", 1, marker_handle_cb2);
         odometry_sub = n.subscribe("/vins_estimator/odometry", 1, odometry_callback);
+        marker_pub_trigger = n.subscribe("/goal",1,marker_pub_trigger_callback);
 
         drone_target_point = n.advertise<geometry_msgs::PoseStamped>("/target_pose", 1);
         markerPub = n.advertise<visualization_msgs::Marker>("TEXT_VIEW_FACING", 10);
@@ -662,7 +674,6 @@ int main(int argc, char** argv)
     interactive_markers::MenuHandler::EntryHandle sub_menu_handle = menu_handler.insert( "Submenu" );
     menu_handler.insert( sub_menu_handle, "First Entry", &processFeedback );
 //    menu_handler.insert( sub_menu_handle, "Second Entry", &processFeedback );
-
 
     ros::spin();
 
