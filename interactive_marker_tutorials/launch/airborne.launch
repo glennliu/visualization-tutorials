@@ -20,6 +20,7 @@
           args="-d $(find interactive_marker_tutorials)/launch/rviz_config/light.rviz" output="screen">
     </node>
 
+
     <node pkg="interactive_marker_tutorials" type="airborne_control" name="airborne_control" output="screen">
         <param name="start_x" value="0"/>
         <param name="start_y" value="0"/>
@@ -36,8 +37,9 @@
 
     </node>
 
-    <!--<node pkg="interactive_marker_tutorials" type="basic_controls" name="basic_controls" output="screen"/>-->
 
-<include file="$(find surfel_fusion)/launch/pj.launch"/>
+    <!--node pkg="interactive_marker_tutorials" type="basic_controls" name="basic_controls" output="screen"/-->
+
+<!--include file="$(find surfel_fusion)/launch/pj.launch"/-->
 
 </launch>
