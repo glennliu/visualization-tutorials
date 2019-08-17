@@ -409,7 +409,7 @@ void makeQuadrotorMarker(const tf::Vector3& position)
     tf::pointTFToMsg(position, interactiveQuadrotor.pose.position);
     interactiveQuadrotor.description = "virDrone";
     interactiveQuadrotor.name = "virDrone";
-    interactiveQuadrotor.scale = 5;
+    interactiveQuadrotor.scale = 1;
 
     makeQuadrotorControl(interactiveQuadrotor);
 
