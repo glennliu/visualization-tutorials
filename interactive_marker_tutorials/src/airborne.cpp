@@ -85,7 +85,7 @@ double start_x, start_y, start_z;
 double transit_x, transit_y, transit_z;
 
 // vis text
-Marker text_marker;
+//Marker text_marker;
 
 
 // %EndTag(vars)%
@@ -146,6 +146,23 @@ InteractiveMarkerControl& makeBoxControl( InteractiveMarker &msg )
 void display_text()
 {
     std::ostringstream text_str;
+    Marker text_marker;
+    text_marker.header.frame_id="world";
+    text_marker.header.stamp = ros::Time::now();
+    text_marker.ns = "basic_shapes";
+    text_marker.action = visualization_msgs::Marker::ADD;
+    text_marker.pose.orientation.x = 0.0;
+    text_marker.pose.orientation.y = 0.0;
+    text_marker.pose.orientation.z = 0.0;
+    text_marker.pose.orientation.w = 1.0;
+    text_marker.id =0;
+    text_marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+
+    text_marker.scale.z = 0.2;
+    text_marker.color.b = 0;
+    text_marker.color.g = 0;
+    text_marker.color.r = 255;
+    text_marker.color.a = 1;
 
     text_str<< std::fixed;
     text_str<< std::setprecision(2);
@@ -186,12 +203,12 @@ void markerpubCallback(const ros::TimerEvent&)
     ros::Time time = ros::Time::now();
     ros::Duration delta_t = time-t_marker;
 
-    if(delta_t > ros::Duration(0.1) && delta_t < ros::Duration(0.2)
+    if(delta_t > ros::Duration(0.2) && delta_t < ros::Duration(0.3)
         &&remap_flag){
         geofence();
-//        display_text();
         drone_target_point.publish(drone_target_pose_msg);
         ROS_INFO("pub target pose");
+//        display_text();
     }
 
 }
@@ -208,13 +225,13 @@ void frameCallback(const ros::TimerEvent&)
 
     ros::Time time = ros::Time::now();
 
-    t.setOrigin(tf::Vector3(0.0, 0.0, sin(float(counter)/140.0) * 2.0));
+    t.setOrigin(tf::Vector3(0.0, 0.0, 0.0));
     t.setRotation(tf::Quaternion(0.0, 0.0, 0.0, 1.0));
-    br.sendTransform(tf::StampedTransform(t, time, "world", "moving_frame"));
+    br.sendTransform(tf::StampedTransform(t, time, "base_link", "world"));
 
     t.setOrigin(tf::Vector3(0.0, 0.0, 0.0));
-    t.setRotation(tf::createQuaternionFromRPY(0.0, float(counter)/140.0, 0.0));
-    br.sendTransform(tf::StampedTransform(t, time, "world", "rotating_frame"));
+    t.setRotation(tf::createQuaternionFromRPY(0.0, 0.0, 0.0));
+    br.sendTransform(tf::StampedTransform(t, time, "base_link", "world"));
 
     counter++;
     ROS_INFO("fcb 222222222222222222");
@@ -477,20 +494,13 @@ void odometry_callback(const nav_msgs::Odometry::ConstPtr &msg)
         transit_x = msg->pose.pose.position.x;
         transit_y = msg->pose.pose.position.y;
         transit_z = msg->pose.pose.position.z;
-//        drone_target_pose_msg.pose.position = msg->pose.pose.position;
-//        drone_target_pose_msg.pose.orientation = msg->pose.pose.orientation;
-//        display_text();
-//        geofence();
-//        drone_target_point.publish(drone_target_pose_msg);
-//    }
+
 }
 
 void gui_state_cb(const std_msgs::String::ConstPtr& msg)
 {
     gui_state = *msg;
-//    if (msg->data == "AIRBORNE_JOY"){
-//        joyContrlFlag = true;
-//    }
+
 }
 
 void marker_pub_trigger_callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
@@ -505,9 +515,12 @@ bool airborne_cmd_callback(ground_station_msgs::Cmd::Request &req,ground_station
         case MAV_CMD_INIT: {
             tf::Vector3 position;
             position = tf::Vector3(transit_x, transit_y, transit_z);
-            if(mesh_marker_flag) makeQuadrotorMarker(position);
-                        else
-                            makeCubeInteractMarker(position);
+            if(mesh_marker_flag) {
+                makeQuadrotorMarker(position);
+//                make6DofMarker(false, visualization_msgs::InteractiveMarkerControl::MOVE_PLANE,position,false);
+            }
+            else
+                makeCubeInteractMarker(position);
             marker_flag = true;
             res.success = true;
             res.message = "initiated";
@@ -584,7 +597,7 @@ void marker_handle_cb1(const visualization_msgs::InteractiveMarkerUpdate::ConstP
 void marker_handle_cb2(const visualization_msgs::InteractiveMarkerInit::ConstPtr &msg)
 {
     if(marker_flag){
-        ROS_INFO("mkcb111");
+//        ROS_INFO("mkcb111");
         drone_target_pose_msg.header.stamp = ros::Time::now();
         drone_target_pose_msg.header.frame_id = msg->markers[0].header.frame_id;
         drone_target_pose_msg.pose.position = msg->markers[0].pose.position;
@@ -592,11 +605,12 @@ void marker_handle_cb2(const visualization_msgs::InteractiveMarkerInit::ConstPtr
 
         t_marker = ros::Time::now();
         seq = msg->seq_num;
-        display_text();
+//        display_text();
 
-        ROS_INFO("mkcb222");
+//        ROS_INFO("mkcb222");
 
-//        ROS_INFO("haha");
+        ROS_INFO("x:%f, y:%f, z:%f",drone_target_pose_msg.pose.position.x,
+                drone_target_pose_msg.pose.position.y,drone_target_pose_msg.pose.position.z);
 //        geofence();
 
     }
@@ -627,19 +641,19 @@ int main(int argc, char** argv)
 //    marker_holding_flag = false;
 
     //vis text
-    text_marker.header.frame_id="world";
-    text_marker.header.stamp = ros::Time::now();
-    text_marker.ns = "basic_shapes";
-    text_marker.action = visualization_msgs::Marker::ADD;
-    text_marker.pose.orientation.w = 1.0;
-    text_marker.id =0;
-    text_marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
-
-    text_marker.scale.z = 0.2;
-    text_marker.color.b = 0;
-    text_marker.color.g = 0;
-    text_marker.color.r = 255;
-    text_marker.color.a = 1;
+//    text_marker.header.frame_id="world";
+//    text_marker.header.stamp = ros::Time::now();
+//    text_marker.ns = "basic_shapes";
+//    text_marker.action = visualization_msgs::Marker::ADD;
+////    text_marker.pose.orientation.w = 1.0;
+//    text_marker.id =0;
+//    text_marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+//
+//    text_marker.scale.z = 0.2;
+//    text_marker.color.b = 0;
+//    text_marker.color.g = 0;
+//    text_marker.color.r = 255;
+//    text_marker.color.a = 1;
 
 //    marker_trigger_state = true;
 
@@ -658,7 +672,7 @@ int main(int argc, char** argv)
         markerPub = n.advertise<visualization_msgs::Marker>("TEXT_VIEW_FACING", 10);
     }
     // create a timer to update the published transforms
-    ros::Timer frame_timer = n.createTimer(ros::Duration(0.08), frameCallback);
+//    ros::Timer frame_timer = n.createTimer(ros::Duration(0.1), frameCallback);
     marker_pub_timer = n.createTimer(ros::Duration(0.1),markerpubCallback);
     if (marker_trigger_state){
         marker_pub_timer.stop();
