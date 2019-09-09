@@ -38,6 +38,6 @@
 
     <!--<node pkg="interactive_marker_tutorials" type="basic_controls" name="basic_controls" output="screen"/>-->
 
-<include file="$(find surfel_fusion)/launch/pj.launch"/>
+<!--<include file="$(find surfel_fusion)/launch/pj.launch"/>-->
 
 </launch>
