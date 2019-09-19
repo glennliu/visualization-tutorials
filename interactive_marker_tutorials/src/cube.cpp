@@ -105,9 +105,9 @@ InteractiveMarkerControl& makeBoxControl( InteractiveMarker &msg )
   marker.scale.x = msg.scale;
   marker.scale.y = msg.scale;
   marker.scale.z = msg.scale;
-  marker.color.r = 0.65+0.7*msg.pose.position.x;
-  marker.color.g = 0.65+0.7*msg.pose.position.y;
-  marker.color.b = 0.65+0.7*msg.pose.position.z;
+  marker.color.r = 5;//+0.7*msg.pose.position.x;
+  marker.color.g = 0.1;//+0.7*msg.pose.position.y;
+  marker.color.b = 0.1;//+0.7*msg.pose.position.z;
   marker.color.a = 1.0;
 
   control.markers.push_back( marker );
@@ -119,41 +119,83 @@ InteractiveMarkerControl& makeBoxControl( InteractiveMarker &msg )
 
 void makeCube( )
 {
-  int side_length = 10;
-  float step = 1.0/ (float)side_length;
-  int count = 0;
+    int side_length = 10;
+    float step = 1.0/ (float)side_length;
+    int count = 4;
 
-  positions.reserve( side_length*side_length*side_length );
+    positions.reserve( side_length*side_length*side_length );
 
-  for ( double x=-0.5; x<0.5; x+=step )
-  {
-    for ( double y=-0.5; y<0.5; y+=step )
-    {
-      for ( double z=0.0; z<1.0; z+=step )
-      {
-        InteractiveMarker int_marker;
-        int_marker.header.frame_id = "base_link";
-        int_marker.scale = step;
 
-        int_marker.pose.position.x = x;
-        int_marker.pose.position.y = y;
-        int_marker.pose.position.z = z;
+    std::vector  <InteractiveMarker> objects;
 
-        positions.push_back( tf::Vector3(x,y,z) );
+    InteractiveMarker int_marker;
+    int_marker.header.frame_id = "world";
+    int_marker.scale = 0.5;
+    positions.push_back( tf::Vector3(1,1,2) );
+    std::stringstream s;
 
-        std::stringstream s;
-        s << count;
-        int_marker.name = s.str();
+//      objects 1
+    s << 0;
+    int_marker.name = s.str();
 
-        makeBoxControl(int_marker);
+    int_marker.pose.position.x = 3;
+    int_marker.pose.position.y = 0;
+    int_marker.pose.position.z = 1;
 
-        server->insert( int_marker );
-        server->setCallback( int_marker.name, &processFeedback );
+    objects.push_back(int_marker);
+    makeBoxControl(objects[0]);
+    server->insert( objects[0] );
+    server->setCallback( objects[0].name, &processFeedback );
 
-        count++;
-      }
-    }
-  }
+//      object 2
+    s <<1;
+    int_marker.name = s.str();
+    int_marker.pose.position.x = 3;
+    int_marker.pose.position.y = -3;
+    int_marker.pose.position.z = 1;
+
+    objects.push_back(int_marker);
+    makeBoxControl(objects[1]);
+    server->insert( objects[1] );
+    server->setCallback( objects[1].name, &processFeedback );
+
+    //      object 3
+    s <<2;
+    int_marker.name = s.str();
+    int_marker.pose.position.x = 1;
+    int_marker.pose.position.y = -3;
+    int_marker.pose.position.z = 1;
+
+    objects.push_back(int_marker);
+    makeBoxControl(objects[2]);
+    server->insert( objects[2] );
+    server->setCallback( objects[2].name, &processFeedback );
+
+    //      object 4
+    s <<3;
+    int_marker.name = s.str();
+    int_marker.pose.position.x = 1;
+    int_marker.pose.position.y = 0;
+    int_marker.pose.position.z = 1;
+
+    objects.push_back(int_marker);
+    makeBoxControl(objects[3]);
+    server->insert( objects[3] );
+    server->setCallback( objects[3].name, &processFeedback );
+
+    //      object 4
+    s <<4;
+    int_marker.name = s.str();
+    int_marker.pose.position.x = -2;
+    int_marker.pose.position.y = 1;
+    int_marker.pose.position.z = 1;
+
+    objects.push_back(int_marker);
+    makeBoxControl(objects[4]);
+    server->insert( objects[4] );
+    server->setCallback( objects[4].name, &processFeedback );
+
+
 }
 
 int main(int argc, char** argv)

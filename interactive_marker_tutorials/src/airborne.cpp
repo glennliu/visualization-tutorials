@@ -92,6 +92,21 @@ double transit_x, transit_y, transit_z;
 
 // %Tag(Box)%
 
+Marker makestaticQuadrotor(visualization_msgs::Marker &msg)
+{
+    Marker marker;
+    marker.mesh_resource = mesh_resource;
+    marker.type = visualization_msgs::Marker::MESH_RESOURCE;
+    marker.scale.x = 1;
+    marker.scale.y = 1;
+    marker.scale.z = 1;
+    marker.color.r = 0.5;
+    marker.color.g = 0.5;
+    marker.color.b = 0.5;
+    marker.color.a = 1.0;
+    return marker;
+}
+
 Marker makeQuadrotor(InteractiveMarker &msg )
 {
     Marker marker;
@@ -640,39 +655,20 @@ int main(int argc, char** argv)
     transit_z = start_z;
 //    marker_holding_flag = false;
 
-    //vis text
-//    text_marker.header.frame_id="world";
-//    text_marker.header.stamp = ros::Time::now();
-//    text_marker.ns = "basic_shapes";
-//    text_marker.action = visualization_msgs::Marker::ADD;
-////    text_marker.pose.orientation.w = 1.0;
-//    text_marker.id =0;
-//    text_marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
-//
-//    text_marker.scale.z = 0.2;
-//    text_marker.color.b = 0;
-//    text_marker.color.g = 0;
-//    text_marker.color.r = 255;
-//    text_marker.color.a = 1;
-
-//    marker_trigger_state = true;
-
-//    ROS_INFO("x range: %f \n",virfence_min(0));
-
     n.param("mesh_resource", mesh_resource, std::string("package://odom_visualization/meshes/hummingbird.mesh"));
     ros::ServiceServer airborn_cmd_server = n.advertiseService("airborne_cmd",airborne_cmd_callback);
 //    markerHandle1 = n.subscribe("/airborne_control/update",1,marker_handle_cb1);
 //        gui_state_sub = n.subscribe("/gui_state", 1, gui_state_cb);
 
+
+
     if(remap_flag) {
         markerHandle2 = n.subscribe("/airborne_control/update_full", 1, marker_handle_cb2);
         odometry_sub = n.subscribe("/vins_estimator/odometry", 1, odometry_callback);
-
         drone_target_point = n.advertise<geometry_msgs::PoseStamped>("/target_pose", 1);
         markerPub = n.advertise<visualization_msgs::Marker>("TEXT_VIEW_FACING", 10);
     }
     // create a timer to update the published transforms
-//    ros::Timer frame_timer = n.createTimer(ros::Duration(0.1), frameCallback);
     marker_pub_timer = n.createTimer(ros::Duration(0.1),markerpubCallback);
     if (marker_trigger_state){
         marker_pub_timer.stop();
@@ -685,10 +681,8 @@ int main(int argc, char** argv)
     ros::Duration(0.1).sleep();
 
     menu_handler.insert( "First Entry", &processFeedback );
-//    menu_handler.insert( "Second Entry", &processFeedback );
     interactive_markers::MenuHandler::EntryHandle sub_menu_handle = menu_handler.insert( "Submenu" );
     menu_handler.insert( sub_menu_handle, "First Entry", &processFeedback );
-//    menu_handler.insert( sub_menu_handle, "Second Entry", &processFeedback );
 
     ros::spin();
 

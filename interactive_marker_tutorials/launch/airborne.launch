@@ -12,9 +12,9 @@
 
     <param name="/odom_visualization/pub_path_flag"  type="bool"  value="false"/>
 
-  <!--node name="$(anon rviz)" pkg="rviz" type="rviz" respawn="false"
+  <node name="$(anon rviz)" pkg="rviz" type="rviz" respawn="false"
         args="-d $(find rviz_visual_tools)/launch/map.rviz">
-  </node-->
+  </node>
 
 <!--    <node name="$(anon rviz)" pkg="rviz" type="rviz" respawn="false"-->
 <!--          args="-d $(find interactive_marker_tutorials)/launch/rviz_config/light.rviz" output="screen">-->
@@ -36,13 +36,8 @@
 
     </node>
 
-
-<<<<<<< HEAD
-<!--<include file="$(find surfel_fusion)/launch/pj.launch"/>-->
-=======
-    <!--node pkg="interactive_marker_tutorials" type="basic_controls" name="basic_controls" output="screen"/-->
+    <node pkg="interactive_marker_tutorials" type="cube" name="cube" output="screen"/>
 
 <!--include file="$(find surfel_fusion)/launch/pj.launch"/-->
->>>>>>> a11005da651d4a7c0f5c0121f4a07dfe4f5b33fe
 
 </launch>
