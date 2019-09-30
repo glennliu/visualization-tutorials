@@ -1,0 +1,43 @@
+<launch>
+
+    <arg name="map_size_x" default="20.0"/>
+    <arg name="map_size_y" default="12.0"/>
+    <arg name="map_size_z" default="2.5"/>
+
+    <arg name="max_vel" default="1.0" />
+    <arg name="max_acc" default="1.0" />
+
+    <arg name="resolution" default="0.05"/>
+    <arg name="poly_order" default=" 5"  />
+
+    <param name="/odom_visualization/pub_path_flag"  type="bool"  value="false"/>
+
+<!--  <node name="$(anon rviz)" pkg="rviz" type="rviz" respawn="false"-->
+<!--        args="-d $(find rviz_visual_tools)/launch/map.rviz">-->
+<!--  </node>-->
+
+    <node name="$(anon rviz)" pkg="rviz" type="rviz" respawn="false"
+          args="-d $(find interactive_marker_tutorials)/launch/rviz_config/light.rviz" output="screen">
+    </node>
+
+<!--    <node pkg="interactive_marker_tutorials" type="airborne_control" name="airborne_control" output="screen">-->
+<!--        <param name="start_x" value="0"/>-->
+<!--        <param name="start_y" value="0"/>-->
+<!--        <param name="start_z" value="1"/>-->
+<!--        <param name="x_range_min" value="-50"/>-->
+<!--        <param name="y_range_min" value="-50"/>-->
+<!--        <param name="z_range_min" value="-5"/>-->
+<!--        <param name="x_range_max" value="50"/>-->
+<!--        <param name="y_range_max" value="50"/>-->
+<!--        <param name="z_range_max" value="20"/>-->
+<!--        <param name="mesh_marker_flag" type="bool" value="true"/>-->
+<!--        <param name="remap_flag" type="bool" value="true"/>-->
+<!--        <param name="marker_trigger_init" type="bool" value="true"/>-->
+
+<!--    </node>-->
+
+<!--    <node pkg="interactive_marker_tutorials" type="cube" name="cube" output="screen"/>-->
+
+<!--include file="$(find surfel_fusion)/launch/pj.launch"/-->
+
+</launch>

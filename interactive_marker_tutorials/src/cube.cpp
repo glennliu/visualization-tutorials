@@ -109,6 +109,7 @@ InteractiveMarkerControl& makeBoxControl( InteractiveMarker &msg )
   marker.color.g = 0.1;//+0.7*msg.pose.position.y;
   marker.color.b = 0.1;//+0.7*msg.pose.position.z;
   marker.color.a = 1.0;
+//  marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
 
   control.markers.push_back( marker );
   msg.controls.push_back( control );
@@ -130,17 +131,18 @@ void makeCube( )
 
     InteractiveMarker int_marker;
     int_marker.header.frame_id = "world";
-    int_marker.scale = 0.5;
-    positions.push_back( tf::Vector3(1,1,2) );
+    int_marker.scale = 0.3;
+    positions.push_back( tf::Vector3(1,1,1) );
     std::stringstream s;
 
 //      objects 1
     s << 0;
     int_marker.name = s.str();
+    int_marker.description = "1";
 
-    int_marker.pose.position.x = 3;
-    int_marker.pose.position.y = 0;
-    int_marker.pose.position.z = 1;
+    int_marker.pose.position.x = 1.98;
+    int_marker.pose.position.y = -2.15;
+    int_marker.pose.position.z = 0.8;
 
     objects.push_back(int_marker);
     makeBoxControl(objects[0]);
@@ -150,9 +152,10 @@ void makeCube( )
 //      object 2
     s <<1;
     int_marker.name = s.str();
-    int_marker.pose.position.x = 3;
-    int_marker.pose.position.y = -3;
-    int_marker.pose.position.z = 1;
+    int_marker.description = "2";
+    int_marker.pose.position.x = 4.9;
+    int_marker.pose.position.y = -2.3;
+    int_marker.pose.position.z = 1.5;
 
     objects.push_back(int_marker);
     makeBoxControl(objects[1]);
@@ -162,9 +165,10 @@ void makeCube( )
     //      object 3
     s <<2;
     int_marker.name = s.str();
-    int_marker.pose.position.x = 1;
-    int_marker.pose.position.y = -3;
-    int_marker.pose.position.z = 1;
+    int_marker.description = "3";
+    int_marker.pose.position.x = 3.9;
+    int_marker.pose.position.y = -0.46;
+    int_marker.pose.position.z = 0.8;
 
     objects.push_back(int_marker);
     makeBoxControl(objects[2]);
@@ -174,21 +178,23 @@ void makeCube( )
     //      object 4
     s <<3;
     int_marker.name = s.str();
-    int_marker.pose.position.x = 1;
-    int_marker.pose.position.y = 0;
-    int_marker.pose.position.z = 1;
+    int_marker.description = "4";
+    int_marker.pose.position.x = 6.3;
+    int_marker.pose.position.y = 0.55;
+    int_marker.pose.position.z = 1.5;
 
     objects.push_back(int_marker);
     makeBoxControl(objects[3]);
     server->insert( objects[3] );
     server->setCallback( objects[3].name, &processFeedback );
 
-    //      object 4
+    //      object 5
     s <<4;
     int_marker.name = s.str();
-    int_marker.pose.position.x = -2;
-    int_marker.pose.position.y = 1;
-    int_marker.pose.position.z = 1;
+    int_marker.description = "5";
+    int_marker.pose.position.x = 0.65;
+    int_marker.pose.position.y = 1.86;
+    int_marker.pose.position.z = 1.2;
 
     objects.push_back(int_marker);
     makeBoxControl(objects[4]);
